@@ -6,7 +6,8 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 {
     public $id;
     public $username;
-    public $password;
+	public $email;
+	public $password;
     public $authKey;
     public $accessToken;
 
@@ -26,13 +27,17 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
             'accessToken' => '101-token',
         ],
     ];
+	
+	private static $user;
 
-    /**
+	/**
      * @inheritdoc
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+//        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+		
+		return isset(self::$user) ? new static(self::$user) : null;
     }
 
     /**
@@ -40,12 +45,16 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
+//        foreach (self::$users as $user) {
+//            if ($user['accessToken'] === $token) {
+//                return new static($user);
+//            }
+//        }
+		
+		if (self::$user['accessToken'] === $token) {
+			return new static($user);
         }
-
+		
         return null;
     }
 
@@ -61,10 +70,47 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
             if (strcasecmp($user['username'], $username) === 0) {
                 return new static($user);
             }
-        }
-
+        }		
+	
         return null;
     }
+	
+	/**
+	 * Find user by email
+	 * 
+	 * @param string $email
+	 * @return static|null
+	 */
+	public static function findByEmail($email)
+    {		
+		if ( !empty(self::$user) )
+		{
+			return new static(self::$user);
+		}
+		else
+		{
+			$profile = Profiles::findOne([
+				'email' => strtolower($email)		
+			]);
+
+			if ( !empty($profile) )
+			{
+				self::$user = [
+					'id' => $profile->profiles_id,
+					'username' => "{$profile->second_name} {$profile->first_name}",
+					'email' => $profile->email,
+					'password' => $profile->password,
+					'authKey' => "test{$profile->profiles_id}key",
+					'accessToken' => "{$profile->profiles_id}-token",
+				];
+				
+				return new static(self::$user);
+			}
+		}
+	
+        return null;
+    }
+	
 
     /**
      * @inheritdoc
