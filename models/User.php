@@ -107,6 +107,42 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 		}
 	
         return null;
+    }
+	
+	/**
+     * Finds user by email
+     *
+     * @param  string      $email
+     * @return static|null
+     */
+    public static function findByEmail($email)
+    {
+        if ( !empty(self::$user) )
+		{
+			return new static(self::$user);
+		}
+		else
+		{
+			$profile = Profiles::findOne([
+				'email' => strtolower($email)		
+			]);
+
+			if ( !empty($profile) )
+			{
+				self::$user = [
+					'id' => $profile->profiles_id,
+					'username' => $profile->username,
+					'email' => $profile->email,
+					'password' => $profile->password,
+					'authKey' => "test{$profile->profiles_id}key",
+					'accessToken' => "{$profile->profiles_id}-token",
+				];
+				
+				return new static(self::$user);
+			}
+		}
+	
+        return false;
     }	
 
     /**
