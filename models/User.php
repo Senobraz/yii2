@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use Yii;
+
 class User extends \yii\base\Object implements \yii\web\IdentityInterface
 {
     public $id;
@@ -34,10 +36,27 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      * @inheritdoc
      */
     public static function findIdentity($id)
-    {
-//        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+    {		
+		$profile = Profiles::findOne([
+			'profiles_id' => $id		
+		]);
+
+		if ( !empty($profile) )
+		{
+			self::$user = [
+				'id' => $profile->profiles_id,
+				'username' => $profile->username,
+				'email' => $profile->email,
+				'password' => $profile->password,
+				'authKey' => "test{$profile->profiles_id}key",
+				'accessToken' => "{$profile->profiles_id}-token",
+			];
+
+			return new static(self::$user);
+		}
 		
-		return isset(self::$user) ? new static(self::$user) : null;
+		return null;
+		
     }
 
     /**
@@ -51,10 +70,6 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 //            }
 //        }
 		
-		if (self::$user['accessToken'] === $token) {
-			return new static($user);
-        }
-		
         return null;
     }
 
@@ -66,38 +81,21 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      */
     public static function findByUsername($username)
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }		
-	
-        return null;
-    }
-	
-	/**
-	 * Find user by email
-	 * 
-	 * @param string $email
-	 * @return static|null
-	 */
-	public static function findByEmail($email)
-    {		
-		if ( !empty(self::$user) )
+        if ( !empty(self::$user) )
 		{
 			return new static(self::$user);
 		}
 		else
 		{
 			$profile = Profiles::findOne([
-				'email' => strtolower($email)		
+				'username' => strtolower($username)		
 			]);
 
 			if ( !empty($profile) )
 			{
 				self::$user = [
 					'id' => $profile->profiles_id,
-					'username' => "{$profile->second_name} {$profile->first_name}",
+					'username' => $profile->username,
 					'email' => $profile->email,
 					'password' => $profile->password,
 					'authKey' => "test{$profile->profiles_id}key",
@@ -109,8 +107,7 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
 		}
 	
         return null;
-    }
-	
+    }	
 
     /**
      * @inheritdoc
@@ -143,7 +140,7 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      * @return boolean if password provided is valid for current user
      */
     public function validatePassword($password)
-    {
-        return $this->password === $password;
+    {		
+		return Yii::$app->getSecurity()->validatePassword($password, $this->password);
     }
 }

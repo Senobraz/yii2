@@ -24,7 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'profiles_id',
             'second_name',
             'first_name',
-            'email:email',
+            'email:email',		
             'password',
             // 'salt',
 
