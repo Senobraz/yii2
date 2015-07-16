@@ -7,6 +7,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
+use app\models\RegistrationForm;
 use app\models\ContactForm;
 
 class SiteController extends Controller
@@ -65,6 +66,25 @@ class SiteController extends Controller
 		
         return $this->render('login', [
             'model' => $model,
+        ]);
+    }
+	
+	public function actionRegistration()
+    {
+        $mRegistrationForm = new RegistrationForm();
+        if ($mRegistrationForm->load(Yii::$app->request->post())) 
+		{
+            $mProfiles = new Profiles();			
+			if ($mProfiles->load(Yii::$app->request->post()) && $mProfiles->save()) 
+			{
+				$mRegistrationForm->login();
+			}
+			
+			return $this->goBack();
+        }	
+		
+        return $this->render('registration', [
+            'model' => $mRegistrationForm,
         ]);
     }
 

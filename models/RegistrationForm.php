@@ -19,9 +19,6 @@ class RegistrationForm extends Model
 	private $isUser = true;
     private $_user = false;
 
-    /**
-     * @return array the validation rules.
-     */
     public function rules()
     {
         return [         
