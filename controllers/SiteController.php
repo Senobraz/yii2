@@ -9,6 +9,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\RegistrationForm;
 use app\models\ContactForm;
+use app\models\Profiles;
 
 class SiteController extends Controller
 {
@@ -72,15 +73,20 @@ class SiteController extends Controller
 	public function actionRegistration()
     {
         $mRegistrationForm = new RegistrationForm();
-        if ($mRegistrationForm->load(Yii::$app->request->post())) 
-		{
-            $mProfiles = new Profiles();			
-			if ($mProfiles->load(Yii::$app->request->post()) && $mProfiles->save()) 
+        if ($mRegistrationForm->load(Yii::$app->request->post())
+				&& $mRegistrationForm->validate() ) 
+		{            
+			$mProfiles = new Profiles();
+			
+			$mProfiles->email = $mRegistrationForm->email;
+			$mProfiles->password = $mRegistrationForm->password;
+			
+			if ($mProfiles->save()) 
 			{
 				$mRegistrationForm->login();
-			}
-			
-			return $this->goBack();
+				
+				return $this->goBack();
+			}			
         }	
 		
         return $this->render('registration', [

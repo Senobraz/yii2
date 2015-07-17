@@ -13,7 +13,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="site-login">
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>Please fill out the following fields to login:</p>
+    <p>Пожалуйста, заполните следующие поля для регистрации:</p>
 
     <?php $form = ActiveForm::begin([
         'id' => 'login-form',
@@ -27,13 +27,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= $form->field($model, 'email') ?>
 
         <?= $form->field($model, 'password')->passwordInput() ?>
+	
+		<?= $form->field($model, 'confirm_password')->passwordInput() ?>   
 
-        <?= $form->field($model, 'rememberMe')->checkbox([
-            'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
-        ]) ?>
-
-        <p>
-            <div class="">
+		<div class="form-group">
+            <div class="col-lg-offset-1 col-lg-11">
                 <?= Html::submitButton('Зарегистрироваться', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
             </div>		
         </div>
